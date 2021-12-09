@@ -22,14 +22,27 @@ def show_diabetis_page():
 
     st.write("""### We need some information to predict Patient's Diabetis status""")
 
-    Pregnancies = st.number_input("Pregnancies", min_value=0, max_value=30, value=1, step=1)
-    Glucose = st.number_input("Glucose", min_value=0, max_value=250, value=85, step=1)
-    BloodPressure = st.number_input("Blood Pressure", min_value=0, max_value=150, value=66, step=1)
-    SkinThickness = st.number_input("Skin Thickness", min_value=0, max_value=150, value=29, step=1)
-    Insulin = st.number_input("Insulin Level", min_value=0, max_value=650, value=0, step=1)
-    bmi = st.number_input("BMI value", min_value=0.0, max_value=50.0, value=26.6, step=0.1, format="%0f")
-    DiabetesPedigreeFunction = st.number_input("Diabetes Pedigree Function", min_value=0.0000, max_value=5.0000, value=0.03, step=0.01 , format="%0f")
-    Agee = st.number_input("Age", min_value=0, max_value=150, value=31, step=1)
+    col1,col2,col3 = st.columns(3)
+    col4,col5,col6 = st.columns(3)
+    col7,col8 = st.columns(2)
+
+    
+    with col1:
+        Pregnancies = st.number_input("Pregnancies", min_value=0, max_value=30, value=1, step=1)
+    with col2:
+        Glucose = st.number_input("Glucose", min_value=0, max_value=250, value=85, step=1)
+    with col3:
+        BloodPressure = st.number_input("Blood Pressure", min_value=0, max_value=150, value=66, step=1)
+    with col4:
+        SkinThickness = st.number_input("Skin Thickness", min_value=0, max_value=150, value=29, step=1)
+    with col5:
+        Insulin = st.number_input("Insulin Level", min_value=0, max_value=650, value=0, step=1)
+    with col6:
+        bmi = st.number_input("BMI value", min_value=0.0, max_value=50.0, value=26.6, step=0.1, format="%0f")
+    with col7:
+        DiabetesPedigreeFunction = st.number_input("Diabetes Pedigree Function", min_value=0.0000, max_value=5.0000, value=0.03, step=0.01 , format="%0f")
+    with col8:
+        Agee = st.number_input("Age", min_value=0, max_value=150, value=31, step=1)
 
     ok = st.button("Predict diabetis status")
     if ok:
@@ -75,6 +88,9 @@ def show_diabetis_page():
              st.subheader(f"The Patient is not Diabetic")
         else:
              st.subheader(f"The Patient is Diabetic")
+        train_accuracy = training_data_accuracy*100
+        st.subheader(f"The Accuracy Of The Model is : {train_accuracy:.2f} %")
+        st.write("___________________________________________________________")
         
 
         

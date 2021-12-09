@@ -20,33 +20,47 @@ def show_heart_page():
 
     st.write("""### We need some information to predict Patient's Heart Disease status""")
 
-    age = st.number_input("Age of patient", min_value=0, max_value=150, value=10, step=1)
-    gender = st.selectbox("Sex of patient" , ("Female","Male"))
+    col1,col2,col3 = st.columns(3)
+    col4,col5,col6 = st.columns(3)
+    col7,col8,col9 = st.columns(3)
+    col10,col11,col12 = st.columns(3)
+    col13,col14,col15 = st.columns(3)
+   
+    with col1:
+        age = st.number_input("Age of patient", min_value=0, max_value=150, value=10, step=1)
+    with col2:    
+        gender = st.selectbox("Sex of patient" , ("Female","Male"))
 
-    sex = 0 if gender == "Female" else 1
+        sex = 0 if gender == "Female" else 1
+    with col3:
+        cpselect = st.selectbox("Chest pain type" , ("Type 0","Type 1", "Type 2","Type 3"))
     
-    cpselect = st.selectbox("Chest pain type" , ("Type 0","Type 1", "Type 2","Type 3"))
+        ChestPain = 0 if cpselect == "Type 0" else 1 if cpselect == "Type 1"  else 2 if cpselect == "Type 2" else 3
+    with col4:
+        Restbp = st.number_input("Resting blood pressure (in mm Hg on admission to the hospital)", min_value=50, max_value=250, value=100, step=1)
+    with col5:    
+        chol = st.number_input("serum cholestoral in mg/dl", min_value=100, max_value=700, value=100, step=1)
+    with col6:    
+        fbsselect = st.selectbox("Fasting blood sugar & gt; 120 mg/dl", ("True","False"))
 
-    ChestPain = 0 if cpselect == "Type 0" else 1 if cpselect == "Type 1"  else 2 if cpselect == "Type 2" else 3
+        fbs = 1 if fbsselect == "True" else 0
+    with col7:
+        electrocardiographic = st.number_input("resting electrocardiographic results", min_value=0.0, max_value=2.0, value=0.0, step=1.0 , format="%0f")
+    with col8:
+        heartrate = st.number_input("maximum heart rate achieved", min_value=0, max_value=300, value=0, step=1)
+    with col9:
+        anginaselect =st.selectbox("exercise induced angina",("Yes","No"))
 
-    Restbp = st.number_input("Resting blood pressure (in mm Hg on admission to the hospital)", min_value=50, max_value=250, value=100, step=1)
-    chol = st.number_input("serum cholestoral in mg/dl", min_value=100, max_value=700, value=100, step=1)
-    fbsselect = st.selectbox("Fasting blood sugar & gt; 120 mg/dl", ("True","False"))
-
-    fbs = 1 if fbsselect == "True" else 0
-
-    electrocardiographic = st.number_input("resting electrocardiographic results", min_value=0.0, max_value=2.0, value=0.0, step=1.0 , format="%0f")
-    heartrate = st.number_input("maximum heart rate achieved", min_value=0, max_value=300, value=0, step=1)
-    anginaselect =st.selectbox("exercise induced angina",("Yes","No"))
-
-    angina = 1 if anginaselect == "Yes" else 0
-
-    oldpeak = st.number_input("ST depression induced by exercise relative to rest", min_value=0.0, max_value=10.0, value=1.0, step=0.1,format="%0f")
-    slope = st.number_input("the slope of the peak exercise ST segment", min_value=0, max_value=2, value=0, step=1)
-    ca = st.number_input("number of major vessels (0-3) colored by flourosopy", min_value=0, max_value=3, value=0, step=1)
-    thal = st.number_input("thal: 3 = normal; 6 = fixed defect; 7 = reversable defect", min_value=0, max_value=8, value=0, step=1)
+        angina = 1 if anginaselect == "Yes" else 0
+    with col10:
+        oldpeak = st.number_input("ST depression induced by exercise relative to rest", min_value=0.0, max_value=10.0, value=1.0, step=0.1,format="%0f")
+    with col11:
+        slope = st.number_input("the slope of the peak exercise ST segment", min_value=0, max_value=2, value=0, step=1)
+    with col12:
+        ca = st.number_input("number of major vessels (0-3) colored by flourosopy", min_value=0, max_value=3, value=0, step=1)
+    with col13:
+        thal = st.number_input("thal: 3 = normal; 6 = fixed defect; 7 = reversable defect", min_value=0, max_value=8, value=0, step=1)
     st.write('<style>div.row-widget.stSelectbox>div{flex-direction:row;}</style>', unsafe_allow_html=True)
-
     ok = st.button("Predict heart disease status")
     if ok:
         # loading the csv data to a Pandas DataFrame
@@ -82,9 +96,12 @@ def show_heart_page():
         print(prediction)
 
         if(prediction[0] ==0):
-             st.subheader(f"The Person does not have a Heart Disease")
+             st.subheader(f"The Patient does not have a Heart Disease")
         else:
-             st.subheader(f"The Person has Heart Disease")
+             st.subheader(f"The Patient has Heart Disease")
+        train_accuracy = training_data_accuracy*100
+        st.subheader(f"The Accuracy Of The Model is : {train_accuracy:.2f} %")
+        st.write("___________________________________________________________")
         
 
         
