@@ -45,9 +45,10 @@ def show_more_page():
             st.sidebar.write(" # Login Here #")
             username = st.sidebar.text_input("User Name")
             password = st.sidebar.text_input("Password" ,type="password")
+            authstatus = "verified"
             if st.sidebar.checkbox("Login"):
                 create_usertable()
-                resultss = login_user(username,password)
+                resultss = login_user(username,password,authstatus)
                 #if password == "1234":
                 if resultss:
                     st.success("Succesfully logged in as {}".format(username))
@@ -60,6 +61,7 @@ def show_more_page():
                     profile_password = profile_data[0][1]
                     profile_email = profile_data[0][2]
                     profile_regno = profile_data[0][3]
+                    profile_authstatus = profile_data[0][4]
                     col5,col6 = st.columns([1,3])
                     with col5:
                      
@@ -69,6 +71,7 @@ def show_more_page():
                         st.subheader(f"User Name : {profile_user} ")
                         st.subheader(f"Email Address : {profile_email} ")
                         st.subheader(f"Medical Regstration Number : {profile_regno} ")
+                        st.subheader(f"Verification Status : {profile_authstatus}")
                     st.write("___________________________________________________________")
                     st.subheader("Edit Profile")
 
@@ -104,7 +107,7 @@ def show_more_page():
 
 
                 else:
-                    st.warning("Incorrect Username/password combination")
+                    st.warning("Incorrect Username/password combination Or  Your Account Maybe Unverifed")
         elif auth == "Signup":
             st.sidebar.write(" # SignUp Here #")
             new_username = st.sidebar.text_input("User Name")
@@ -112,12 +115,13 @@ def show_more_page():
             new_regnumber = st.sidebar.text_input("Regestration Number")
             confirm_password = st.sidebar.text_input("Password" ,type="password")
             new_password = st.sidebar.text_input("Confirm Password" ,type="password")
+            new_authstatus = "pending"
             if st.sidebar.checkbox("SignUp"):
                 if confirm_password == new_password:
                     create_usertable()
-                    add_userdata(new_username,new_password,new_email,new_regnumber)
+                    add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
                     st.success("Successfully Signed Up")
-                    st.info("Go to Login Tab to Login to the service")
+                    st.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
                 else:
                     st.warning("SignUp Unsuccessful!")
                     st.info("Make sure the passwords entered match each other")
