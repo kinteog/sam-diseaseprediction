@@ -5,6 +5,7 @@ from diabetis_page import show_diabetes_page
 from parkinson_page import show_parkinson_page
 from more_page import show_more_page
 from database_page import show_database_page
+from admin_page import show_adminn_page
 
 
 
@@ -21,7 +22,7 @@ st.set_page_config(page_title='Disease Prediction System', page_icon=img)
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 
-page = st.sidebar.selectbox("Choose The disease you want to predict", ( "Home", "Diabetes", "Heart", "Parkinson", "More"))
+page = st.sidebar.selectbox("Choose The disease you want to predict", ( "Home", "Diabetes", "Heart", "Parkinson", "Admin" ,"More"))
 
 if page == "Heart":
     show_heart_page()
@@ -31,5 +32,7 @@ elif page  == "Parkinson":
     show_parkinson_page()
 elif page  == "Home":
     show_database_page()
+elif page  == "Admin":
+    show_adminn_page()
 else:
     show_more_page()

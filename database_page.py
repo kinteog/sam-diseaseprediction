@@ -21,9 +21,10 @@ def show_database_page():
         st.sidebar.write(" # Login Here #")
         username = st.sidebar.text_input("User Name")
         password = st.sidebar.text_input("Password" ,type="password")
+        authstatus = "verified"
         if st.sidebar.checkbox("Login"):
             create_usertable()
-            resultss = login_user(username,password)
+            resultss = login_user(username,password,authstatus)
             #if password == "1234":
             if resultss:
                 st.success("Succesfully logged in as {}".format(username))
@@ -31,7 +32,7 @@ def show_database_page():
 
                 st.write(
                     """
-                ### more info on data used to train the model
+                ### View And Modify Patients' Database
                 """
                 )
                 
@@ -162,20 +163,21 @@ def show_database_page():
                         df2 = pd.DataFrame(result3,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking'])
                         st.dataframe(df2)
             else:
-                st.warning("Incorrect Username/Password Combination")    
+                st.warning("Incorrect Username/Password Combination Or Your Account Maybe Unverifed")    
     elif auth == "Signup":
         st.sidebar.write(" # SignUp Here #")
         new_username = st.sidebar.text_input("User Name")
         new_email = st.sidebar.text_input("Email Address")
-        new_regnumber = st.sidebar.text_input("Regestration Number")
+        new_regnumber = st.sidebar.text_input("Registration Number")
         confirm_password = st.sidebar.text_input("Password" ,type="password")
         new_password = st.sidebar.text_input("Confirm Password" ,type="password")
+        new_authstatus = "pending"
         if st.sidebar.checkbox("SignUp"):
             if confirm_password == new_password:
                 create_usertable()
-                add_userdata(new_username,new_password,new_email,new_regnumber)
+                add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
                 st.success("Successfully Signed Up")
-                st.info("Go to Login Tab to Login to the service")
+                st.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
             else:
                 st.warning("SignUp Unsuccessful!")
                 st.info("Make sure the passwords entered match each other")

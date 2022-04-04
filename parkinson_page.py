@@ -172,9 +172,10 @@ def show_parkinson_page():
     st.sidebar.write(" # Login Here #")
     username = st.sidebar.text_input("User Name")
     password = st.sidebar.text_input("Password" ,type="password")
+    authstatus = "verified"
     if st.sidebar.checkbox("Login"):
         create_usertable()
-        resultss = login_user(username,password)
+        resultss = login_user(username,password,authstatus)
         #if password == "1234":
         if resultss:
             st.success("Succesfully logged in as {}".format(username))

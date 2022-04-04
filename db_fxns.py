@@ -7,7 +7,7 @@ c = conn.cursor()
 
 
 def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS Patientstable(name TEXT,id TEXT,diabetis TEXT,heart TEXT,parkinsons TEXT,Hospital TEXT,date DATE)')
+    c.execute('CREATE TABLE IF NOT EXISTS Patientstable(name TEXT,id TEXT NOT NULL PRIMARY KEY,diabetis TEXT,heart TEXT,parkinsons TEXT,Hospital TEXT,date DATE, UNIQUE(id,date))')
 
 def add_data(name,id,diabetis,heart,parkinsons,Hospital,date):
     c.execute('INSERT INTO Patientstable(name,id,diabetis,heart,parkinsons,Hospital,date) VALUES(?,?,?,?,?,?,?)',(name,id,diabetis,heart,parkinsons,Hospital,date))
@@ -45,30 +45,47 @@ def delete_data(name):
     #authentication section
 
 def create_usertable():
-    c.execute('CREATE TABLE IF NOT EXISTS authtable(username TEXT,password TEXT,email TEXT,regno TEXT)')
+    c.execute('CREATE TABLE IF NOT EXISTS authtable(username TEXT,password TEXT,email TEXT NOT NULL PRIMARY KEY,regno TEXT, authstatus TEXT, UNIQUE(email,regno))')
 
-def add_userdata(username,password,email,regno):
-    c.execute('INSERT INTO authtable(username,password,email,regno) VALUES(?,?,?,?)',(username,password,email,regno))
+def add_userdata(username,password,email,regno,authstatus):
+    c.execute('INSERT INTO authstable(username,password,email,regno,authstatus) VALUES(?,?,?,?,?)',(username,password,email,regno,authstatus))
     conn.commit()
-def login_user(username,password):
-    c.execute('SELECT * FROM authtable WHERE username =? AND password =?',(username,password))
+def login_user(username,password,authstatus):
+    c.execute('SELECT * FROM authstable WHERE username =? AND password =? AND authstatus=?',(username,password,authstatus))
     data = c.fetchall()
     return data
 def view_allusers():
-    c.execute('SELECT * FROM authtable')
+    c.execute('SELECT username,email,regno,authstatus FROM authstable')
     data = c.fetchall()
     return data
 def view_user(username):
-    c.execute('SELECT * FROM authtable WHERE username="{}"'.format(username))
+    c.execute('SELECT * FROM authstable WHERE username="{}"'.format(username))
     data = c.fetchall()
     return data
 def edit_userprofile(update_user,update_email,username,email):
-    c.execute('UPDATE authtable SET username=?,email=? WHERE username = ? and email = ?',(update_user,update_email,username,email))
+    c.execute('UPDATE authstable SET username=?,email=? WHERE username = ? and email = ?',(update_user,update_email,username,email))
     conn.commit()
     data = c.fetchall()
     return data
 def edit_userpassword(updated_password,password):
-    c.execute('UPDATE authtable SET password = ? WHERE password = ?',(updated_password,password))
+    c.execute('UPDATE authstable SET password = ? WHERE password = ?',(updated_password,password))
     conn.commit()
     data = c.fetchall()
     return data
+
+def view_unique_user():
+    c.execute('SELECT DISTINCT email FROM authstable')
+    data = c.fetchall()
+    return data
+def get_authname(email):
+    c.execute('SELECT * FROM authstable WHERE email="{}"'.format(email))
+    data = c.fetchall()
+    return data
+def edit_authstatus(updated_authstatus,authstatus):
+    c.execute('UPDATE authstable SET authstatus = ? WHERE authstatus = ?',(updated_authstatus,authstatus))
+    conn.commit()
+    data = c.fetchall()
+    return data
+def delete_user(email):
+	c.execute('DELETE FROM authstable WHERE email="{}"'.format(email))
+	conn.commit()
