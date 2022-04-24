@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px 
@@ -26,20 +27,35 @@ def load_data3():
 
 
 def show_more_page():
-    st.title("Explore more page")
+    st.title("Explore Project Information And Profile Page")
 
-    st.sidebar.write("___________________________________________________________")
+    moree  = option_menu(
+        menu_title="User Profile Or Project Documentation",
+        options= ["My Profile","Project Documentation"],
+        icons =["person-check","file-word"],
+        menu_icon = "globe",
+        default_index=0,
+        orientation="horizontal",
+        )
 
-    moremenu = ["My Profile","Project Documentation"]
-    moree = st.sidebar.selectbox("View Your Profile Or View Project Documentations",moremenu)
 
-    st.sidebar.write("___________________________________________________________")
+
+
+
 
     if moree == "My Profile":
         st.subheader("Your Profile")
-        st.write("You need to be logged in to view your profile.")
-        authmenu = ["Login","Signup","Logout"]
-        auth = st.sidebar.selectbox("Login or Signup or Logout",authmenu)
+        st.info("You need to be logged in to view your profile.")
+
+        with st.sidebar:
+            auth = option_menu(
+                menu_title=None,
+                options= [ "Login","Signup","Logout"] ,
+                icons =["person-check","person-plus","person-x"],
+                menu_icon = "cast",
+                default_index=0,
+                
+                )
         
         if auth == "Login":
             st.sidebar.write(" # Login Here #")
@@ -51,7 +67,7 @@ def show_more_page():
                 resultss = login_user(username,password,authstatus)
                 #if password == "1234":
                 if resultss:
-                    st.success("Succesfully logged in as {}".format(username))
+                    st.sidebar.success("Succesfully logged in as {}".format(username))
 
                     profile_data = view_user(username)
                     #st.write(profile_data)
@@ -107,7 +123,7 @@ def show_more_page():
 
 
                 else:
-                    st.warning("Incorrect Username/password combination Or  Your Account Maybe Unverifed")
+                    st.sidebar.warning("Incorrect Username/password combination Or  Your Account Maybe Unverifed")
         elif auth == "Signup":
             st.sidebar.write(" # SignUp Here #")
             new_username = st.sidebar.text_input("User Name")
@@ -120,13 +136,13 @@ def show_more_page():
                 if confirm_password == new_password:
                     create_usertable()
                     add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
-                    st.success("Successfully Signed Up")
-                    st.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
+                    st.sidebar.success("Successfully Signed Up")
+                    st.sidebar.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
                 else:
-                    st.warning("SignUp Unsuccessful!")
-                    st.info("Make sure the passwords entered match each other")
+                    st.sidebar.warning("SignUp Unsuccessful!")
+                    st.sidebar.info("Make sure the passwords entered match each other")
         elif auth == "Logout":
-            st.info("Successfully Logged out")
+            st.sidebar.info("Successfully Logged out")
             st.write("You are currently logged out")
     elif moree == "Project Documentation":
 
@@ -222,19 +238,14 @@ def show_more_page():
         if st.button("View Project Documentation"):
             st.subheader("About This Project")
             with st.expander("View Project Documentation"):
-                st.subheader("about the project")
-                st.write("about the project")
-                st.write("about the project")
+                st.write("[About The Project](https://git.heroku.com/diseasepredictionsystem.git)")
             st.subheader("Disclaimer")
-            with st.expander("View View Disclaimer Documentation"):
-                st.subheader("project disclaimer")
-                st.write("project disclaimer")
-                st.write("project disclaimer")
+            with st.expander("View Disclaimer Documentation"):
+                st.write("[Project Disclaimer](https://www.freeprivacypolicy.com/live/5ba5a14d-9e54-45e6-aade-bfb867ac184d)")
             st.subheader("Terms And Conditions")
-            with st.expander("View View Terms And Conditions Documentation"):
-                st.subheader("project Terms And Conditions")
-                st.write("project Terms And Conditions")
-                st.write("project Terms And Conditions")
+            with st.expander("View Terms And Conditions Documentation"):
+                st.write("[Project Terms And Conditions](https://www.freeprivacypolicy.com/live/0aaca50f-3b71-45b1-8b46-8753f28c2a81)")
+                
 
     st.write("___________________________________________________________")
     st.subheader("Review Section")

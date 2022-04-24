@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
 import pickle
 import numpy as np
 import pandas as pd
@@ -110,8 +111,8 @@ def show_heart_page():
             myFile = csv.writer(file)
             #myFile.writerow(["age","sex","cp","trestbps","chol","fbs","thalach","exang","oldpeak","slope","ca","thal","target"])
             myFile.writerow([age,sex,ChestPain,Restbp,chol,fbs,electrocardiographic,heartrate,angina,oldpeak,slope,ca,thal,predict_target])
-    st.sidebar.write("___________________________________________________________")
-    st.sidebar.write("You need to login to access professional features of this service")
+    
+    st.sidebar.info("You need to login to access professional features of this service")
     st.sidebar.write(" # Login Here #")
     username = st.sidebar.text_input("User Name")
     password = st.sidebar.text_input("Password" ,type="password")
@@ -121,7 +122,7 @@ def show_heart_page():
         resultss = login_user(username,password,authstatus)
         #if password == "1234":
         if resultss:
-            st.success("Succesfully logged in as {}".format(username))
+            st.sidebar.success("Succesfully logged in as {}".format(username))
             st.subheader("Update Patient's Heart Disease Status To Database")
             list_of_name = [i [0] for i in view_unique_name()]
             selected_name = st.selectbox("Patient's Detail To Edit",list_of_name)
@@ -157,7 +158,7 @@ def show_heart_page():
                 edit_patient_data(new_name,new_id,new_diabetis,new_heart,new_parkinsons,new_Hospital,new_date,name,id,diabetis,heart,parkinsons,Hospital,date)
                 st.success("sucessfully updated :: {}'s :: Heart Disease status  ".format(name)) 
         else:
-            st.warning("Incorrect Username/password combination")
+            st.sidebar.warning("Incorrect Username/password combination")
 
         
 

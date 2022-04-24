@@ -167,8 +167,8 @@ def show_parkinson_page():
             myFile = csv.writer(file)
             #myFile.writerow(["MDVP:Fo(Hz)","MDVP:Fhi(Hz)","MDVP:Flo(Hz)","MDVP:Jitter(%)","MDVP:Jitter(Abs)","MDVP:RAP","MDVP:PPQ","Jitter:DDP","MDVP:Shimmer","MDVP:Shimmer(dB)","Shimmer:APQ3","Shimmer:APQ5","MDVP:APQ","Shimmer:DDA","NHR","HNR","status","RPDE","D2","DFA","spread1","spread2","PPE"])
             myFile.writerow([MDVPFoHz,MDVPFhiHz, MDVPFloHz,MDVPJitterPercent,MDVPJitterAbs,MDVPRAP,MDVPPPQ,JitterDDP,MDVPShimmer,MDVPShimmerdB,ShimmerAPQ3,ShimmerAPQ5,MDVPAPQ,ShimmerDDA,NHR,HNR,predict_target,RPDE,D2,DFA,spread1,spread2,PPE])
-    st.sidebar.write("___________________________________________________________")
-    st.sidebar.write("You need to login to access professional features of this service")
+    
+    st.sidebar.info("You need to login to access professional features of this service")
     st.sidebar.write(" # Login Here #")
     username = st.sidebar.text_input("User Name")
     password = st.sidebar.text_input("Password" ,type="password")
@@ -178,7 +178,7 @@ def show_parkinson_page():
         resultss = login_user(username,password,authstatus)
         #if password == "1234":
         if resultss:
-            st.success("Succesfully logged in as {}".format(username))
+            st.sidebar.success("Succesfully logged in as {}".format(username))
             st.subheader("Update Patient's Parkinson's Status To Database")
             list_of_name = [i [0] for i in view_unique_name()]
             selected_name = st.selectbox("Patient's Detail To Edit",list_of_name)
@@ -212,9 +212,9 @@ def show_parkinson_page():
             add = st.button("Update Patient Parkinson's Disease Status")
             if add:
                 edit_patient_data(new_name,new_id,new_diabetis,new_heart,new_parkinsons,new_Hospital,new_date,name,id,diabetis,heart,parkinsons,Hospital,date)
-                st.success("sucessfully updated :: {}'s :: Parkinson's Disease status  ".format(name))
+                st.sidebar.success("sucessfully updated :: {}'s :: Parkinson's Disease status  ".format(name))
         else:
-            st.warning("Incorrect Username/password combination")
+            st.sidebar.warning("Incorrect Username/password combination")
 
         
 

@@ -1,8 +1,12 @@
+from itertools import count
 from numpy import poly1d
 import streamlit as st
+from streamlit_option_menu import option_menu
 import pandas as pd
 # Data Viz Pkgs
+import plotly
 import plotly.express as px 
+import plotly.graph_objs as go
 
 from db_fxns import add_data, create_table, view_all_data, get_name, view_unique_name, edit_patient_data, delete_data, create_usertable, add_userdata, login_user
 
@@ -12,10 +16,19 @@ from db_fxns import add_data, create_table, view_all_data, get_name, view_unique
 def show_database_page():
     st.title("Explore database page")
 
-    st.write("You need to be logged in as qualified medical personnel to access database services.")
-    st.sidebar.write("___________________________________________________________")
-    authmenu = ["Login","Signup","Logout"]
-    auth = st.sidebar.selectbox("Login or Signup or Logout",authmenu)
+    st.info("You need to be logged in as qualified medical personnel to access database services.")
+    with st.sidebar:
+        auth = option_menu(
+            menu_title=None,
+            options= [ "Login","Signup","Logout"] ,
+            icons =["person-check","person-plus","person-x"],
+            menu_icon = "cast",
+            default_index=0,
+            
+            )
+
+
+    
     
     if auth == "Login":
         st.sidebar.write(" # Login Here #")
@@ -27,7 +40,7 @@ def show_database_page():
             resultss = login_user(username,password,authstatus)
             #if password == "1234":
             if resultss:
-                st.success("Succesfully logged in as {}".format(username))
+                st.sidebar.success("Succesfully logged in as {}".format(username))
             
 
                 st.write(
@@ -35,17 +48,26 @@ def show_database_page():
                 ### View And Modify Patients' Database
                 """
                 )
+                choice = option_menu(
+                    menu_title="Database Menu",
+                    options= ["Add New Patient Details","View All Patients Details","Update Patient Details","Delete Patient Details"] ,
+                    icons =["folder-plus","folder2-open","folder-symlink","folder-x"],
+                    menu_icon = "hdd-stack-fill",
+                    default_index=0,
+                    orientation="horizontal",
+                    )
+
                 
 
-                menu = ["Add New Patient Details","View All Patients Details","Update Patient Details","Delete Patient Details"]
-                choice = st.selectbox("Menu",menu)
+               
+                
                 create_table()
 
                 if choice == "Add New Patient Details":
                     st.subheader("Add Patient Details")
                     col1,col2 = st.columns(2)
                     col3,col4,col5 = st.columns(3)
-                    col6,col7 = st.columns(2)
+                    col6,col7,col8 = st.columns(3)
 
                     with col1:
                         name = st.text_input("Patient's Full Name")
@@ -59,18 +81,24 @@ def show_database_page():
                         parkinsons = st.selectbox("Parkinson's Disease  Status" , ("Not Tested","Positive", "Negative"))
                     with col6:
                         Hospital = st.text_input("Hosipital Name")
-                    with col7:
+                    with col8:
                         date = st.date_input("Date of last testing")
+                    with col7:
+                        county = st.selectbox("Patient's County" ,("Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita/Taveta","Garissa","Wajir",
+                        "Mandera","Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui", "Machakos", "Makueni","Nyandarua","Nyeri","Kirinyaga",
+                        "Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia","Uasin Gishu","Elgeyo/Marakwet","Nandi","Baringo","Laikipia",
+                        "Nakuru","Narok","Kajiado","Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay","Migori","Kisii","Nyamira","Nairobi City"))
+                      
 
                     add = st.button("Add Patient to database")
                     if add:
-                        add_data(name,id,diabetis,heart,parkinsons,Hospital,date)
+                        add_data(name,id,diabetis,heart,parkinsons,Hospital,date,county)
                         st.success("sucessfully added :: {} :: to database".format(name))
                 elif choice == "View All Patients Details":
                     st.subheader("View Database")
                     result = view_all_data()
                     #st.write(result)
-                    df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking'])
+                    df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients County'])
                     with st.expander("View all Data"):
                         st.dataframe(df)
                     with st.expander("Diabetis Distribution  Summary"):
@@ -93,12 +121,135 @@ def show_database_page():
                         parkinson_df = parkinson_df.reset_index()
                         st.dataframe(parkinson_df)
                         p1 = px.pie(parkinson_df,names='index',values='Parkinsons Status')
+                        
                         st.plotly_chart(p1,use_container_width=True)
+
+                    with st.expander("Diabetes Disease Distribution Graph By County In Kenya "):
+                        county= df['Patients County']
+                        countysort = st.selectbox("Please Select County" ,("Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita/Taveta","Garissa","Wajir",
+                        "Mandera","Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui", "Machakos", "Makueni","Nyandarua","Nyeri","Kirinyaga",
+                        "Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia","Uasin Gishu","Elgeyo/Marakwet","Nandi","Baringo","Laikipia",
+                        "Nakuru","Narok","Kajiado","Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay","Migori","Kisii","Nyamira","Nairobi City"))
+                      
+                       
+                        pos_responses = df[df['Diabetis Status'] == 'Positive'][df['Patients County'] == countysort]['Diabetis Status'].value_counts()
+                        neg_responses = df[df['Diabetis Status'] == 'Negative'][df['Patients County'] == countysort]['Diabetis Status'].value_counts()
+                        non_responses = df[df['Diabetis Status'] == 'Not Tested'][df['Patients County'] == countysort]['Diabetis Status'].value_counts()
+                        
+                        date =df['Date of checking']
+
+                        trace1 = go.Bar(
+                            x=pos_responses.index,
+                            y=pos_responses.values,
+                            name='Positive'
+                        )
+                        trace2 = go.Bar(
+                            x=neg_responses.index,
+                            y=neg_responses.values,
+                            name='Negative'
+                        )
+                        trace3 = go.Bar(
+                            x=non_responses.index,
+                            y=non_responses.values,
+                            name='Not Tested'
+                        )
+
+                        data = [trace1, trace2 ,trace3]
+                        layout = go.Layout(
+                            barmode='stack'
+                        )
+
+                    
+                        fig = go.Figure(data=data, layout=layout)
+
+                        st.plotly_chart(fig,use_container_width=True)
+                    
+                    with st.expander("Heart Disease Distribution Graph By County In Kenya "):
+                        county= df['Patients County']
+                        countysort = st.selectbox("Select County" ,("Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita/Taveta","Garissa","Wajir",
+                        "Mandera","Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui", "Machakos", "Makueni","Nyandarua","Nyeri","Kirinyaga",
+                        "Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia","Uasin Gishu","Elgeyo/Marakwet","Nandi","Baringo","Laikipia",
+                        "Nakuru","Narok","Kajiado","Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay","Migori","Kisii","Nyamira","Nairobi City"))
+                      
+                       
+                        pos_responses = df[df['Heart Status'] == 'Positive'][df['Patients County'] == countysort]['Heart Status'].value_counts()
+                        neg_responses = df[df['Heart Status'] == 'Negative'][df['Patients County'] == countysort]['Heart Status'].value_counts()
+                        non_responses = df[df['Heart Status'] == 'Not Tested'][df['Patients County'] == countysort]['Heart Status'].value_counts()
+                        
+                        date =df['Date of checking']
+
+                        trace1 = go.Bar(
+                            x=pos_responses.index,
+                            y=pos_responses.values,
+                            name='Positive'
+                        )
+                        trace2 = go.Bar(
+                            x=neg_responses.index,
+                            y=neg_responses.values,
+                            name='Negative'
+                        )
+                        trace3 = go.Bar(
+                            x=non_responses.index,
+                            y=non_responses.values,
+                            name='Not Tested'
+                        )
+
+                        data = [trace1, trace2 ,trace3]
+                        layout = go.Layout(
+                            barmode='stack'
+                        )
+
+                    
+                        fig = go.Figure(data=data, layout=layout)
+
+                        st.plotly_chart(fig,use_container_width=True)
+                        
+                    with st.expander("Parkinson's Disease Distribution Graph By County In Kenya "):
+                        county= df['Patients County']
+                        countysort = st.selectbox("Select County here" ,("Mombasa","Kwale","Kilifi","Tana River","Lamu","Taita/Taveta","Garissa","Wajir",
+                        "Mandera","Marsabit","Isiolo","Meru","Tharaka-Nithi","Embu","Kitui", "Machakos", "Makueni","Nyandarua","Nyeri","Kirinyaga",
+                        "Murang'a","Kiambu","Turkana","West Pokot","Samburu","Trans Nzoia","Uasin Gishu","Elgeyo/Marakwet","Nandi","Baringo","Laikipia",
+                        "Nakuru","Narok","Kajiado","Kericho","Bomet","Kakamega","Vihiga","Bungoma","Busia","Siaya","Kisumu","Homa Bay","Migori","Kisii","Nyamira","Nairobi City"))
+                      
+                       
+                        pos_responses = df[df['Parkinsons Status'] == 'Positive'][df['Patients County'] == countysort]['Parkinsons Status'].value_counts()
+                        neg_responses = df[df['Parkinsons Status'] == 'Negative'][df['Patients County'] == countysort]['Parkinsons Status'].value_counts()
+                        non_responses = df[df['Parkinsons Status'] == 'Not Tested'][df['Patients County'] == countysort]['Parkinsons Status'].value_counts()
+                        
+                        date =df['Date of checking']
+
+                        trace1 = go.Bar(
+                            x=pos_responses.index,
+                            y=pos_responses.values,
+                            name='Positive'
+                        )
+                        trace2 = go.Bar(
+                            x=neg_responses.index,
+                            y=neg_responses.values,
+                            name='Negative'
+                        )
+                        trace3 = go.Bar(
+                            x=non_responses.index,
+                            y=non_responses.values,
+                            name='Not Tested'
+                        )
+
+                        data = [trace1, trace2 ,trace3]
+                        layout = go.Layout(
+                            barmode='stack'
+                        )
+
+                    
+                        fig = go.Figure(data=data, layout=layout)
+
+                        st.plotly_chart(fig,use_container_width=True)
+
+
                 elif choice == "Update Patient Details":
                     st.subheader("Edit / Update Patient Details")
                     with st.expander("View Patient Current Data"):
                         result = view_all_data()
-                        df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking'])
+                        df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
                         st.dataframe(df)
 
                     list_of_name = [i [0] for i in view_unique_name()]
@@ -143,13 +294,13 @@ def show_database_page():
                 
                     with st.expander("View Patient Updated Data"):
                         result2 = view_all_data()
-                        df2 = pd.DataFrame(result2,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking'])
+                        df2 = pd.DataFrame(result2,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
                         st.dataframe(df2)
                 elif choice == "Delete Patient Details":
                     st.subheader("Delete Patient Details")
                     with st.expander("View Patient's Current Data"):
                         result = view_all_data()
-                        df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking'])
+                        df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
                         st.dataframe(df)
 
                     list_of_name = [i [0] for i in view_unique_name()]
@@ -160,10 +311,10 @@ def show_database_page():
                         st.success("Patient Details Successfully deleted")
                     with st.expander("View Patient Updated Data"):
                         result3 = view_all_data()
-                        df2 = pd.DataFrame(result3,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking'])
+                        df2 = pd.DataFrame(result3,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
                         st.dataframe(df2)
             else:
-                st.warning("Incorrect Username/Password Combination Or Your Account Maybe Unverifed")    
+                st.sidebar.warning("Incorrect Username/Password Combination Or Your Account Maybe Unverifed")    
     elif auth == "Signup":
         st.sidebar.write(" # SignUp Here #")
         new_username = st.sidebar.text_input("User Name")
@@ -176,11 +327,11 @@ def show_database_page():
             if confirm_password == new_password:
                 create_usertable()
                 add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
-                st.success("Successfully Signed Up")
-                st.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
+                st.sidebar.success("Successfully Signed Up")
+                st.sidebar.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
             else:
                 st.warning("SignUp Unsuccessful!")
                 st.info("Make sure the passwords entered match each other")
     elif auth == "Logout":
-        st.info("Successfully Logged out")
+        st.sidebar.info("Successfully Logged out")
         st.write("You are currently logged out")

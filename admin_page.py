@@ -1,5 +1,6 @@
 from numpy import poly1d
 import streamlit as st
+from streamlit_option_menu import option_menu
 import pandas as pd
 # Data Viz Pkgs
 import plotly.express as px 
@@ -25,7 +26,7 @@ def load_data5():
     new_heart_dataset=pd.read_csv('newheart.csv')
     return new_heart_dataset
 def load_data6():
-    new_parkinson_dataset=pd.read_csv('newparkinsons.csv')
+    new_parkinson_dataset=pd.read_csv('newparkinson.csv')
     return new_parkinson_dataset
 def load_data3():
     review_dataset=pd.read_csv('review.csv')
@@ -33,12 +34,21 @@ def load_data3():
 
 
 def show_adminn_page():
-    st.title("Explore Admin page")
+    st.title("Explore Administrator Page")
 
-    st.write("You need to be logged in as qualified admin personnel to access database services.")
-    st.sidebar.write("___________________________________________________________")
-    authmenu = ["Login","Logout"]
-    auth = st.sidebar.selectbox("Admin Login or Logout",authmenu)
+    st.info("You need to be logged in as qualified admin personnel to access database services.")
+  
+    
+    with st.sidebar:
+        auth = option_menu(
+            menu_title=None,
+            options= [ "Login","Logout"] ,
+            icons =["person-check","person-x"],
+            menu_icon = "cast",
+            default_index=0,
+            
+            )
+   
     
     if auth == "Login":
         st.sidebar.write(" # Login Here #")
@@ -50,7 +60,7 @@ def show_adminn_page():
             resultss = login_user(username,password,authstatus)
             #if password == "1234":
             if resultss:
-                st.success("Succesfully logged in as {}".format(username))
+                st.sidebar.success("Succesfully logged in as {}".format(username))
             
 
                 st.write(
@@ -58,10 +68,18 @@ def show_adminn_page():
                 ### View Admin Dashboard
                 """
                 )
+
+                choice = option_menu(
+                    menu_title="Admin Dashboard",
+                    options= ["Add New Users","View All Users Details","Verify And Update Users Details","Delete Users Account" , "Data Analysis"] ,
+                    icons =["person-plus","people","person-lines-fill","person-dash","graph-up-arrow"],
+                    menu_icon = "person-rolodex",
+                    default_index=0,
+                    orientation="horizontal",
+                    )
                 
 
-                menu = ["Add New Users","View All Users Details","Verify And Update Users Details","Delete Users Account" , "Data Analysis"]
-                choice = st.selectbox("Menu",menu)
+
                 create_table()
 
                 if choice == "Add New Users":
@@ -266,8 +284,10 @@ def show_adminn_page():
 
                         result = load_data4()
             
-                        with st.expander("View all Data Used To Train And Test The Diabetes Model"):
+                        with st.expander("View all Data Collected From The Diabetes Model"):
                             st.dataframe(result)
+                        with open('newdiabetes.csv') as f:
+                            st.download_button('Download diabetes dataset File', f , file_name="new diabetes dataset.csv", mime="text/csv")
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
                         with st.expander("View The Distribution Of The Labelled Data"):
@@ -288,13 +308,15 @@ def show_adminn_page():
                             data = result.groupby(["BloodPressure"])["Outcome"].mean().sort_values(ascending=True)
                             st.line_chart(data)
                     if st.button("View New heart Disease Dataset Analysis"):
-                        st.subheader("Dataset Used To Train And Test The Model")
+                        st.subheader("Dataset Collected From  The Heart Disease Model")
 
 
                         result = load_data5()
             
-                        with st.expander("View all Data Used To Train And Test The Diabetis Model"):
+                        with st.expander("View all Data Collected From The Heart Disease Model"):
                             st.dataframe(result)
+                        with open('newheart.csv') as f:
+                            st.download_button('Download heart disease dataset. File', f , file_name="new heart disease dataset.csv", mime="text/csv")
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
                         with st.expander("View The Distribution Of The Labelled Data"):
@@ -315,12 +337,14 @@ def show_adminn_page():
                             data = result.groupby(["age"])["target"].mean().sort_values(ascending=True)
                             st.line_chart(data)
                     if st.button("View New Parkinson's Disease Dataset Analysis"):
-                        st.subheader("Dataset Used To Train And Test The Model")
+                        st.subheader("Dataset Collected From  The Model")
 
                         result = load_data6()
             
-                        with st.expander("View all Data Used To Train And Test The Diabetis Model"):
+                        with st.expander("View all Data Collected From  The Parkinson's Disease Model"):
                             st.dataframe(result)
+                        with open('newparkinson.csv') as f:
+                            st.download_button('Download parkinsons disease dataset File', f , file_name="new parkinsons dataset.csv", mime="text/csv")
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
                         with st.expander("View The Distribution Of The Labelled Data"):
@@ -344,23 +368,17 @@ def show_adminn_page():
                     if st.button("View Project Documentation"):
                         st.subheader("About This Project")
                         with st.expander("View Project Documentation"):
-                            st.subheader("about the project")
-                            st.write("about the project")
-                            st.write("about the project")
+                            st.write("[About The Project](https://git.heroku.com/diseasepredictionsystem.git)")
                         st.subheader("Disclaimer")
-                        with st.expander("View View Disclaimer Documentation"):
-                            st.subheader("project disclaimer")
-                            st.write("project disclaimer")
-                            st.write("project disclaimer")
+                        with st.expander("View Disclaimer Documentation"):
+                            st.write("[Project Disclaimer](https://www.freeprivacypolicy.com/live/5ba5a14d-9e54-45e6-aade-bfb867ac184d)")
                         st.subheader("Terms And Conditions")
-                        with st.expander("View View Terms And Conditions Documentation"):
-                            st.subheader("project Terms And Conditions")
-                            st.write("project Terms And Conditions")
-                            st.write("project Terms And Conditions")
+                        with st.expander("View Terms And Conditions Documentation"):
+                            st.write("[Project Terms And Conditions](https://www.freeprivacypolicy.com/live/0aaca50f-3b71-45b1-8b46-8753f28c2a81)")
 
                     
             else:  
-                st.warning("Incorrect Username/Password Combination Or You Do Not Have Admin Authorization")    
+                st.sidebar.warning("Incorrect Username/Password Combination Or You Do Not Have Admin Authorization")    
     elif auth == "Signup":
         st.sidebar.write(" # SignUp Here #")
         new_username = st.sidebar.text_input("User Name")
@@ -372,11 +390,11 @@ def show_adminn_page():
             if confirm_password == new_password:
                 create_usertable()
                 add_userdata(new_username,new_password,new_email,new_regnumber)
-                st.success("Successfully Signed Up")
-                st.info("Go to Login Tab to Login to the service")
+                st.sidebar.success("Successfully Signed Up")
+                st.sidebar.info("Go to Login Tab to Login to the service")
             else:
-                st.warning("SignUp Unsuccessful!")
-                st.info("Make sure the passwords entered match each other")
+                st.sidebar.warning("SignUp Unsuccessful!")
+                st.sidebar.info("Make sure the passwords entered match each other")
     elif auth == "Logout":
-        st.info("Successfully Logged out")
+        st.sidebar.info("Successfully Logged out")
         st.write("You are currently logged out")
