@@ -13,7 +13,7 @@ from admin_page import show_adminn_page
 img = Image.open('images/Main.png')
 hide_menu_style = """
         <style>
-        #MainMenu {visibility: hidden; }
+        #MainMenu {visibility: show; }
         footer {visibility: hidden; }
         </style>
 
@@ -32,6 +32,8 @@ page = option_menu(
     )
 
 
+
+
 #page = st.sidebar.selectbox("Main Menu", ( "Home", "Diabetes", "Heart", "Parkinson", "Admin" ,"More"))
 
 if page == "Heart Disease Prediction":
@@ -42,7 +44,9 @@ elif page  == "Parkinsons Disease Prediction":
     show_parkinson_page()
 elif page  == "Database Page":
     show_database_page()
+
 elif page  == "Administrator Page":
     show_adminn_page()
 elif page == "Project Information And Profile":
+
     show_more_page()

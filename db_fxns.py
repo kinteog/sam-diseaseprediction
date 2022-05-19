@@ -7,7 +7,9 @@ c = conn.cursor()
 
 
 def create_table():
+
     c.execute('CREATE TABLE IF NOT EXISTS Patientstable2(name TEXT,id TEXT NOT NULL PRIMARY KEY,diabetis TEXT,heart TEXT,parkinsons TEXT,Hospital TEXT,date DATE, county TEXT, UNIQUE(id,date))')
+
 
 def add_data(name,id,diabetis,heart,parkinsons,Hospital,date,county):
     c.execute('INSERT INTO Patientstable2(name,id,diabetis,heart,parkinsons,Hospital,date,county) VALUES(?,?,?,?,?,?,?,?)',(name,id,diabetis,heart,parkinsons,Hospital,date,county))
@@ -48,7 +50,9 @@ def create_usertable():
     c.execute('CREATE TABLE IF NOT EXISTS authtable(username TEXT,password TEXT,email TEXT NOT NULL PRIMARY KEY,regno TEXT, authstatus TEXT, UNIQUE(email,regno))')
 
 def add_userdata(username,password,email,regno,authstatus):
+
     c.execute('INSERT INTO authstable(username,password,email,regno,authstatus ) VALUES(?,?,?,?,?)',(username,password,email,regno,authstatus))
+
     conn.commit()
 def login_user(username,password,authstatus):
     c.execute('SELECT * FROM authstable WHERE username =? AND password =? AND authstatus=?',(username,password,authstatus))
@@ -81,8 +85,8 @@ def get_authname(email):
     c.execute('SELECT * FROM authstable WHERE email="{}"'.format(email))
     data = c.fetchall()
     return data
-def edit_authstatus(updated_authstatus,authstatus):
-    c.execute('UPDATE authstable SET authstatus = ? WHERE authstatus = ?',(updated_authstatus,authstatus))
+def edit_authstatus(updated_authstatus,updated_email,authstatus,email):
+    c.execute('UPDATE authstable SET authstatus = ?,email =? WHERE authstatus = ? and email =?',(updated_authstatus,updated_email,authstatus,email))
     conn.commit()
     data = c.fetchall()
     return data

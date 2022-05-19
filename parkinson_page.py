@@ -195,17 +195,25 @@ def show_parkinson_page():
                 Hospital = selected_result[0][5]
                 date = selected_result[0][6]
 
-                col20,col21 = st.columns(2)
 
-                new_name = name
-                new_id = id
-                new_diabetis = diabetis
-                new_heart = heart
-                new_Hospital = Hospital
+                col27,col28 = st.columns(2)
+                col29,col30,col31 = st.columns(3)
+                col32,col33 = st.columns(2)
 
-                with col20:
-                    new_parkinsons = st.selectbox("Parkinson's Disease Status" , ["Not Tested","Positive", "Negative"])
-                with col21:
+                
+                with col27:
+                    new_name = st.text_input("Patient's Full Name",name)
+                with col28:
+                    new_id = st.text_input("Patient's ID Number",id)
+                with col29:
+                    new_diabetis = st.selectbox("Diabetis Status" , ["Not Tested","Positive", "Negative"])
+                with col30:
+                    new_heart = st.selectbox("Heart Disease Status" , ["Not Tested","Positive", "Negative"])
+                with col31:
+                    new_parkinsons = st.selectbox("Parkinson's Disease  Status" , ["Not Tested","Positive", "Negative"])
+                with col32:
+                    new_Hospital = st.text_input("Hosipital Name",Hospital)
+                with col33:
                     new_date = st.date_input("Date of last testing")
 
 

@@ -128,17 +128,30 @@ def show_diabetes_page():
                 Hospital = selected_result[0][5]
                 date = selected_result[0][6]
 
+                
+
+
+                
+
+
                 col20,col21 = st.columns(2)
+                col22,col23,col24 = st.columns(3)
+                col25,col26 = st.columns(2)
 
-                new_name = name
-                new_id = id
-                new_heart = heart
-                new_parkinsons = parkinsons
-                new_Hospital = Hospital
-
+                
                 with col20:
-                    new_diabetis = st.selectbox("Diabetis Status" , ["Not Tested","Positive", "Negative"])
+                    new_name = st.text_input("Patient's Full Name",name)
                 with col21:
+                    new_id = st.text_input("Patient's ID Number",id)
+                with col22:
+                    new_diabetis = st.selectbox("Diabetis Status" , ["Not Tested","Positive", "Negative"])
+                with col23:
+                    new_heart = st.selectbox("Heart Disease Status" , ["Not Tested","Positive", "Negative"])
+                with col24:
+                    new_parkinsons = st.selectbox("Parkinson's Disease  Status" , ["Not Tested","Positive", "Negative"])
+                with col25:
+                    new_Hospital = st.text_input("Hosipital Name",Hospital)
+                with col26:
                     new_date = st.date_input("Date of last testing")
 
 

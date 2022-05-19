@@ -3,12 +3,13 @@ from numpy import poly1d
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
+import re
 # Data Viz Pkgs
 import plotly
 import plotly.express as px 
 import plotly.graph_objs as go
 
-from db_fxns import add_data, create_table, view_all_data, get_name, view_unique_name, edit_patient_data, delete_data, create_usertable, add_userdata, login_user
+from db_fxns import add_data, create_table, view_all_data, get_name, view_unique_name, edit_patient_data, delete_data, create_usertable, add_userdata, login_user, view_user
 
 
 
@@ -26,6 +27,7 @@ def show_database_page():
             default_index=0,
             
             )
+    
 
 
     
@@ -99,6 +101,7 @@ def show_database_page():
                     result = view_all_data()
                     #st.write(result)
                     df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients County'])
+                    df.index += 1
                     with st.expander("View all Data"):
                         st.dataframe(df)
                     with st.expander("Diabetis Distribution  Summary"):
@@ -250,6 +253,7 @@ def show_database_page():
                     with st.expander("View Patient Current Data"):
                         result = view_all_data()
                         df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
+                        df.index += 1
                         st.dataframe(df)
 
                     list_of_name = [i [0] for i in view_unique_name()]
@@ -295,12 +299,14 @@ def show_database_page():
                     with st.expander("View Patient Updated Data"):
                         result2 = view_all_data()
                         df2 = pd.DataFrame(result2,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
+                        df2.index += 1
                         st.dataframe(df2)
                 elif choice == "Delete Patient Details":
                     st.subheader("Delete Patient Details")
                     with st.expander("View Patient's Current Data"):
                         result = view_all_data()
                         df = pd.DataFrame(result,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
+                        df.index += 1
                         st.dataframe(df)
 
                     list_of_name = [i [0] for i in view_unique_name()]
@@ -312,9 +318,13 @@ def show_database_page():
                     with st.expander("View Patient Updated Data"):
                         result3 = view_all_data()
                         df2 = pd.DataFrame(result3,columns=['Name of patient','ID Number.','Diabetis Status','Heart Status','Parkinsons Status','Hospital Name','Date of checking','Patients county'])
+                        df2.index += 1
                         st.dataframe(df2)
             else:
+
                 st.sidebar.warning("Incorrect Username/Password Combination Or Your Account Maybe Unverifed")    
+
+ 
     elif auth == "Signup":
         st.sidebar.write(" # SignUp Here #")
         new_username = st.sidebar.text_input("User Name")
@@ -322,16 +332,34 @@ def show_database_page():
         new_regnumber = st.sidebar.text_input("Registration Number")
         confirm_password = st.sidebar.text_input("Password" ,type="password")
         new_password = st.sidebar.text_input("Confirm Password" ,type="password")
-        new_authstatus = "pending"
+        new_authstatus = "Pending"
+
+        regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+
+        vals = view_user(new_username)
+
         if st.sidebar.checkbox("SignUp"):
-            if confirm_password == new_password:
-                create_usertable()
-                add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
-                st.sidebar.success("Successfully Signed Up")
-                st.sidebar.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
+
+            if vals:
+                st.sidebar.warning("This user is already regestered!")
+                st.sidebar.info("If you are already verified by administrator please proceed to login")
             else:
-                st.warning("SignUp Unsuccessful!")
-                st.info("Make sure the passwords entered match each other")
+                if re.fullmatch(regex, new_email):
+                    if confirm_password == new_password:
+                        create_usertable()
+                        add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
+                        st.sidebar.success("Successfully Signed Up")
+                        st.sidebar.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
+                    else:
+                        st.sidebar.warning("SignUp Unsuccessful!")
+                        st.sidebar.info("Make sure the passwords entered match each other")
+                else:
+                    st.sidebar.warning("Invalid email format, Please check your eamil and try again")
+
+       
+           
+
+
     elif auth == "Logout":
         st.sidebar.info("Successfully Logged out")
         st.write("You are currently logged out")

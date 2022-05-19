@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px 
 from PIL import Image
+import re
 import csv
 from db_fxns import create_usertable, add_userdata, edit_userpassword, edit_userprofile, login_user, view_user, edit_userprofile,edit_userpassword
 
@@ -123,24 +124,40 @@ def show_more_page():
 
 
                 else:
+
                     st.sidebar.warning("Incorrect Username/password combination Or  Your Account Maybe Unverifed")
-        elif auth == "Signup":
+
+        elif auth == "Signup":           
+
             st.sidebar.write(" # SignUp Here #")
             new_username = st.sidebar.text_input("User Name")
             new_email = st.sidebar.text_input("Email Address")
             new_regnumber = st.sidebar.text_input("Regestration Number")
             confirm_password = st.sidebar.text_input("Password" ,type="password")
             new_password = st.sidebar.text_input("Confirm Password" ,type="password")
-            new_authstatus = "pending"
+            new_authstatus = "Pending"
+            regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+
+            vals = view_user(new_username)
+
             if st.sidebar.checkbox("SignUp"):
-                if confirm_password == new_password:
-                    create_usertable()
-                    add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
-                    st.sidebar.success("Successfully Signed Up")
-                    st.sidebar.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
+
+                if vals:
+                    st.sidebar.warning("This user is already regestered!")
+                    st.sidebar.info("If you are already verified by administrator please proceed to login")
                 else:
-                    st.sidebar.warning("SignUp Unsuccessful!")
-                    st.sidebar.info("Make sure the passwords entered match each other")
+                    if re.fullmatch(regex, new_email):
+                        if confirm_password == new_password:
+                            create_usertable()
+                            add_userdata(new_username,new_password,new_email,new_regnumber,new_authstatus)
+                            st.sidebar.success("Successfully Signed Up")
+                            st.sidebar.info("You Will Be notified Once Your Account Is Verified To Access Other Features Of The App")
+                        else:
+                            st.sidebar.warning("SignUp Unsuccessful!")
+                            st.sidebar.info("Make sure the passwords entered match each other")
+                    else:
+                        st.sidebar.warning("Invalid email format, Please check your eamil and try again")
+                
         elif auth == "Logout":
             st.sidebar.info("Successfully Logged out")
             st.write("You are currently logged out")
@@ -238,7 +255,7 @@ def show_more_page():
         if st.button("View Project Documentation"):
             st.subheader("About This Project")
             with st.expander("View Project Documentation"):
-                st.write("[About The Project](https://git.heroku.com/diseasepredictionsystem.git)")
+                st.write("[About The Project](https://drive.google.com/file/d/1P_kkvymKL5_S5Xm-ygz08kwn4TOYxscP/view?usp=drivesdk)")
             st.subheader("Disclaimer")
             with st.expander("View Disclaimer Documentation"):
                 st.write("[Project Disclaimer](https://www.freeprivacypolicy.com/live/5ba5a14d-9e54-45e6-aade-bfb867ac184d)")
@@ -272,11 +289,10 @@ def show_more_page():
 
     result3 = load_data3()
     review_table = result3.drop(columns= 'User Email' , axis=1)
+    review_table.index += 1
             
     with st.expander("View all Reviews"):
             st.dataframe(review_table)
         
-
-    
 
     

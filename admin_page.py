@@ -2,14 +2,15 @@ from numpy import poly1d
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
+import re
 # Data Viz Pkgs
 import plotly.express as px 
 
 import csv
 
-from db_fxns import add_data, create_table, view_all_data, get_name, view_unique_name, edit_patient_data, delete_data, create_usertable, add_userdata, login_user,view_allusers,view_unique_user,get_authname,edit_authstatus,delete_user
+from db_fxns import add_data, create_table, view_all_data, get_name, view_unique_name, edit_patient_data, delete_data, create_usertable, add_userdata, login_user,view_allusers,view_unique_user,get_authname,edit_authstatus,delete_user,view_user
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def load_data():
     diabetes_dataset=pd.read_csv('diabetes.csv')
     return diabetes_dataset
@@ -26,7 +27,9 @@ def load_data5():
     new_heart_dataset=pd.read_csv('newheart.csv')
     return new_heart_dataset
 def load_data6():
+
     new_parkinson_dataset=pd.read_csv('newparkinson.csv')
+
     return new_parkinson_dataset
 def load_data3():
     review_dataset=pd.read_csv('review.csv')
@@ -34,6 +37,7 @@ def load_data3():
 
 
 def show_adminn_page():
+
     st.title("Explore Administrator Page")
 
     st.info("You need to be logged in as qualified admin personnel to access database services.")
@@ -49,6 +53,7 @@ def show_adminn_page():
             
             )
    
+
     
     if auth == "Login":
         st.sidebar.write(" # Login Here #")
@@ -61,6 +66,7 @@ def show_adminn_page():
             #if password == "1234":
             if resultss:
                 st.sidebar.success("Succesfully logged in as {}".format(username))
+
             
 
                 st.write(
@@ -68,6 +74,7 @@ def show_adminn_page():
                 ### View Admin Dashboard
                 """
                 )
+
 
                 choice = option_menu(
                     menu_title="Admin Dashboard",
@@ -103,26 +110,40 @@ def show_adminn_page():
 
                     add = st.button("Add User to database")
                     if add:
-                        create_usertable()
-                        add_userdata(new_username,new_password,new_email,new_regnumber,auth_status)
-                        st.success("Successfully Signed Up New User")
+                        regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+
+                        vals = view_user(new_username)
+                        if vals:
+                            st.warning("This user is already regestered!")
+                            
+                        else:
+                            if re.fullmatch(regex, new_email):
+                                create_usertable()
+                                add_userdata(new_username,new_password,new_email,new_regnumber,auth_status)
+                                st.success("Successfully Signed Up New User")
+                                st.info("sucessfully added :: {} :: to auth database".format(new_username))
+                            else:
+                                st.warning("Invalid email format, Please check your eamil and try again")
                         
-                        st.info("sucessfully added :: {} :: to auth database".format(new_username))
+                        
                 elif choice == "View All Users Details":
                     st.subheader("View Database")
                     result = view_allusers()
                     #st.write(result)
-                    df = pd.DataFrame(result,columns=['Name of User' ,'User Email','RegID Number.','Auth Status'])
+                    df = pd.DataFrame(result ,columns=['Name of User' ,'User Email','RegID Number.','Auth Status'])
+                    df.index += 1
                     with st.expander("View all User Data"):
                         st.dataframe(df)
                     with st.expander("Authentication Distribution  Summary"):
                         diabetis_df= df['Auth Status'].value_counts().to_frame()
                         diabetis_df = diabetis_df.reset_index()
+                        diabetis_df.index += 1
                         st.dataframe(diabetis_df)
                         p1 = px.pie(diabetis_df,names='index',values='Auth Status')
                         st.plotly_chart(p1,use_container_width=True)
                     result3 = load_data3()
                     review_table = result3.drop(columns= 'User Email' , axis=1)
+                    review_table.index += 1
                             
                     with st.expander("View all Reviews"):
                             st.dataframe(review_table)
@@ -135,6 +156,7 @@ def show_adminn_page():
                     with st.expander("View User Current Data"):
                         result = view_allusers()
                         df = pd.DataFrame(result,columns=['Name of User' ,'User Email','RegID Number.','Auth Status'])
+                        df.index += 1
                         st.dataframe(df)
 
                     list_of_name = [i [0] for i in view_unique_user()]
@@ -171,20 +193,22 @@ def show_adminn_page():
                         update_authstatus = st.selectbox("User Auth Status" , ["pending","verified", "unverified","admin"])
 
                         
-                    add = st.button("Update User details")
-                    if add:
-                        edit_authstatus(update_authstatus,auth_reference)
-                        st.success("sucessfully updated :: {}'s :: user authentication status from :: {} :: to :: {} ::".format(name,auth_reference,update_authstatus))
-                
-                    with st.expander("View User Updated Data"):
-                        result2 = view_allusers()
-                        df2 = pd.DataFrame(result2,columns=['Name of User' ,'User Email','RegID Number.','Auth Status'])
-                        st.dataframe(df2)
+                        add = st.button("Update User details")
+                        if add:
+                            edit_authstatus(update_authstatus,user_email,auth_reference,user_email)
+                            st.success("sucessfully updated :: {}'s :: user authentication status from :: {} :: to :: {} ::".format(name,auth_reference,update_authstatus))
+                    
+                        with st.expander("View User Updated Data"):
+                            result2 = view_allusers()
+                            df2 = pd.DataFrame(result2,columns=['Name of User' ,'User Email','RegID Number.','Auth Status'])
+                            df2.index += 1
+                            st.dataframe(df2)
                 elif choice == "Delete Users Account":
                     st.subheader("Delete User Profile")
                     with st.expander("View Users' Current Data"):
                         result = view_allusers()
                         df = pd.DataFrame(result,columns=['Name of User','User Email','RegID Number','Auth Status'])
+                        df.index += 1
                         st.dataframe(df)
 
                     list_of_name = [i [0] for i in view_unique_user()]
@@ -196,6 +220,7 @@ def show_adminn_page():
                     with st.expander("View Updated User Data"):
                         result3 = view_allusers()
                         df2 = pd.DataFrame(result3,columns=['Name of User' ,'User Email','RegID Number','Auth Status'])
+                        df2.index += 1
                         st.dataframe(df2)
                 elif choice == "Data Analysis":
 
@@ -204,6 +229,8 @@ def show_adminn_page():
                         st.subheader("Dataset Used To Train And Test The Model")
 
                         result = load_data()
+                       
+
             
                         with st.expander("View all Data Used To Train And Test The Diabetes Model"):
                             st.dataframe(result)
@@ -232,7 +259,7 @@ def show_adminn_page():
 
                         result = load_data1()
             
-                        with st.expander("View all Data Used To Train And Test The Diabetis Model"):
+                        with st.expander("View all Data Used To Train And Test The Heart Model"):
                             st.dataframe(result)
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
@@ -258,7 +285,7 @@ def show_adminn_page():
 
                         result = load_data2()
             
-                        with st.expander("View all Data Used To Train And Test The Diabetis Model"):
+                        with st.expander("View all Data Used To Train And Test The Parkinson Model"):
                             st.dataframe(result)
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
@@ -284,10 +311,12 @@ def show_adminn_page():
 
                         result = load_data4()
             
+
                         with st.expander("View all Data Collected From The Diabetes Model"):
                             st.dataframe(result)
                         with open('newdiabetes.csv') as f:
                             st.download_button('Download diabetes dataset File', f , file_name="new diabetes dataset.csv", mime="text/csv")
+
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
                         with st.expander("View The Distribution Of The Labelled Data"):
@@ -308,6 +337,7 @@ def show_adminn_page():
                             data = result.groupby(["BloodPressure"])["Outcome"].mean().sort_values(ascending=True)
                             st.line_chart(data)
                     if st.button("View New heart Disease Dataset Analysis"):
+
                         st.subheader("Dataset Collected From  The Heart Disease Model")
 
 
@@ -337,6 +367,7 @@ def show_adminn_page():
                             data = result.groupby(["age"])["target"].mean().sort_values(ascending=True)
                             st.line_chart(data)
                     if st.button("View New Parkinson's Disease Dataset Analysis"):
+
                         st.subheader("Dataset Collected From  The Model")
 
                         result = load_data6()
@@ -345,6 +376,7 @@ def show_adminn_page():
                             st.dataframe(result)
                         with open('newparkinson.csv') as f:
                             st.download_button('Download parkinsons disease dataset File', f , file_name="new parkinsons dataset.csv", mime="text/csv")
+
 
                         st.subheader("The Distribution Of The Labelled Data On The Dataset")
                         with st.expander("View The Distribution Of The Labelled Data"):
@@ -368,7 +400,8 @@ def show_adminn_page():
                     if st.button("View Project Documentation"):
                         st.subheader("About This Project")
                         with st.expander("View Project Documentation"):
-                            st.write("[About The Project](https://git.heroku.com/diseasepredictionsystem.git)")
+
+                            st.write("[About The Project](https://drive.google.com/file/d/1P_kkvymKL5_S5Xm-ygz08kwn4TOYxscP/view?usp=drivesdk)")
                         st.subheader("Disclaimer")
                         with st.expander("View Disclaimer Documentation"):
                             st.write("[Project Disclaimer](https://www.freeprivacypolicy.com/live/5ba5a14d-9e54-45e6-aade-bfb867ac184d)")
@@ -379,6 +412,7 @@ def show_adminn_page():
                     
             else:  
                 st.sidebar.warning("Incorrect Username/Password Combination Or You Do Not Have Admin Authorization")    
+
     elif auth == "Signup":
         st.sidebar.write(" # SignUp Here #")
         new_username = st.sidebar.text_input("User Name")
@@ -390,6 +424,7 @@ def show_adminn_page():
             if confirm_password == new_password:
                 create_usertable()
                 add_userdata(new_username,new_password,new_email,new_regnumber)
+
                 st.sidebar.success("Successfully Signed Up")
                 st.sidebar.info("Go to Login Tab to Login to the service")
             else:
@@ -397,4 +432,5 @@ def show_adminn_page():
                 st.sidebar.info("Make sure the passwords entered match each other")
     elif auth == "Logout":
         st.sidebar.info("Successfully Logged out")
+
         st.write("You are currently logged out")
